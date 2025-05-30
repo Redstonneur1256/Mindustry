@@ -68,7 +68,8 @@ public class Build{
 
     /** Places a ConstructBlock at this location. */
     @Remote(called = Loc.server)
-    public static void beginPlace(@Nullable Unit unit, Block result, Team team, int x, int y, int rotation){
+    public static void beginPlace(@Nullable Unit unit, Block result, Team team, int x, int y, int rotationRaw){
+        int rotation = result == null ? 0 : result.planRotation(rotationRaw);
         if(!validPlace(result, team, x, y, rotation)){
             return;
         }
@@ -83,6 +84,7 @@ public class Build{
             if(unit != null && unit.getControllerName() != null) tile.build.lastAccessed = unit.getControllerName();
             int previous = tile.build.rotation;
             tile.build.rotation = Mathf.mod(rotation, 4);
+            tile.build.rotationRaw = Mathf.mod(rotationRaw, 4);
             tile.build.updateProximity();
             tile.build.noSleep();
             Fx.rotateBlock.at(tile.build.x, tile.build.y, tile.build.block.size);
@@ -95,7 +97,7 @@ public class Build{
             float healthf = tile.build.healthf();
             var config = tile.build.config();
 
-            tile.setBlock(result, team, rotation);
+            tile.setBlock(result, team, rotationRaw);
 
             if(unit != null && unit.getControllerName() != null) tile.build.lastAccessed = unit.getControllerName();
 
@@ -127,7 +129,7 @@ public class Build{
         if(result.instantBuild){
             Events.fire(new BlockBuildBeginEvent(tile, team, unit, false));
             result.placeBegan(tile, tile.block, unit);
-            ConstructBlock.constructFinish(tile, result, unit, (byte)rotation, team, null);
+            ConstructBlock.constructFinish(tile, result, unit, rotationRaw, team, null);
             return;
         }
 
@@ -144,7 +146,7 @@ public class Build{
             }
         });
 
-        tile.setBlock(sub, team, rotation);
+        tile.setBlock(sub, team, rotationRaw);
 
         var build = (ConstructBuild)tile.build;
 

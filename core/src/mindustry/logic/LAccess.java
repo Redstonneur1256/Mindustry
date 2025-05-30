@@ -28,6 +28,7 @@ public enum LAccess{
     progress,
     timescale,
     rotation,
+    rotationRaw,
     x,
     y,
     velocityX,

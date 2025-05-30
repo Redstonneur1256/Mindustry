@@ -230,7 +230,7 @@ public class Tile implements Position, QuadTreeObject, Displayable{
         preChanged();
 
         this.block = type;
-        changeBuild(team, entityprov, (byte)Mathf.mod(rotation, 4));
+        changeBuild(team, entityprov, rotation);
 
         if(build != null){
             build.team(team);

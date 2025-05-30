@@ -67,7 +67,7 @@ public class ConstructBlock extends Block{
     }
 
     @Remote(called = Loc.server)
-    public static void constructFinish(Tile tile, Block block, @Nullable Unit builder, byte rotation, Team team, Object config){
+    public static void constructFinish(Tile tile, Block block, @Nullable Unit builder, int rotation, Team team, Object config){
         if(tile == null) return;
 
         float healthf = tile.build == null ? 1f : tile.build.healthf();

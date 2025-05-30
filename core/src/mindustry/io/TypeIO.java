@@ -453,7 +453,7 @@ public class TypeIO{
         write.i(Point2.pack(plan.x, plan.y));
         if(!plan.breaking){
             write.s(plan.block.id);
-            write.b((byte)plan.rotation);
+            write.b((byte)((plan.rotation & 3) | (plan.rotationRaw & 3) << 2));
             write.b(1); //always has config
             writeObject(write, plan.config);
         }
@@ -476,7 +476,8 @@ public class TypeIO{
             byte rotation = read.b();
             boolean hasConfig = read.b() == 1;
             Object config = readObject(read);
-            current = new BuildPlan(Point2.x(position), Point2.y(position), rotation, content.block(block));
+            current = new BuildPlan(Point2.x(position), Point2.y(position), rotation & 3, content.block(block));
+            current.rotationRaw = (rotation >> 2) & 3;
             //should always happen, but is kept for legacy reasons just in case
             if(hasConfig){
                 current.config = config;

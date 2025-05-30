@@ -15,6 +15,8 @@ import static mindustry.Vars.*;
 public class BuildPlan implements Position, QuadTreeObject{
     /** Position and rotation of this plan. */
     public int x, y, rotation;
+    /** The initial rotation of this plan before applying {@link Block#planRotation(int)}. */
+    public int rotationRaw;
     /** Block being placed. If null, this is a breaking plan.*/
     public @Nullable Block block;
     /** Whether this is a break plan.*/
@@ -39,6 +41,7 @@ public class BuildPlan implements Position, QuadTreeObject{
         this.x = x;
         this.y = y;
         if(block != null) this.rotation = block.planRotation(rotation);
+        this.rotationRaw = rotation;
         this.block = block;
         this.breaking = false;
     }
@@ -48,6 +51,7 @@ public class BuildPlan implements Position, QuadTreeObject{
         this.x = x;
         this.y = y;
         if(block != null) this.rotation = block.planRotation(rotation);
+        this.rotationRaw = rotation;
         this.block = block;
         this.breaking = false;
         this.config = config;
@@ -108,6 +112,7 @@ public class BuildPlan implements Position, QuadTreeObject{
         copy.x = x;
         copy.y = y;
         copy.rotation = rotation;
+        copy.rotationRaw = rotationRaw;
         copy.block = block;
         copy.breaking = breaking;
         copy.config = config;
@@ -139,6 +144,7 @@ public class BuildPlan implements Position, QuadTreeObject{
         this.x = x;
         this.y = y;
         if(block != null) this.rotation = block.planRotation(rotation);
+        this.rotationRaw = rotation;
         this.block = block;
         this.breaking = false;
         return this;
@@ -196,6 +202,7 @@ public class BuildPlan implements Position, QuadTreeObject{
         "x=" + x +
         ", y=" + y +
         ", rotation=" + rotation +
+        ", rotationRaw=" + rotationRaw +
         ", block=" + block +
         ", breaking=" + breaking +
         ", progress=" + progress +

@@ -64,7 +64,10 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
     transient Block block;
     transient Seq<Building> proximity = new Seq<>(true, 6, Building.class);
     transient int cdump;
+    /** Current rotation in range 0-3. */
     transient int rotation;
+    /** The initial rotation before applying {@link Block#planRotation(int)}. */
+    transient int rotationRaw;
     transient float payloadRotation;
     transient String lastAccessed;
     transient boolean wasDamaged; //used only by the indexer
@@ -114,7 +117,8 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
             }
         }
         proximity.clear();
-        this.rotation = rotation;
+        this.rotation = Mathf.mod(block.planRotation(rotation), 4);
+        this.rotationRaw = rotation;
         this.tile = tile;
 
         set(tile.drawx(), tile.drawy());
@@ -176,7 +180,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         boolean writeVisibility = state.rules.fog && visibleFlags != 0;
 
         write.f(health);
-        write.b(rotation | 0b10000000);
+        write.b((rotation & 0b11) | (rotationRaw & 0b11) << 2 | 0b11000000); //8th bit is wether the version is present, 7th bit indicates raw rotation is present
         write.b(team.id);
         write.b(writeVisibility ? 4 : 3); //version
         write.b(enabled ? 1 : 0);
@@ -208,7 +212,8 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
         byte rot = read.b();
         team = Team.get(read.b());
 
-        rotation = rot & 0b01111111;
+        rotation = rot & 0b11;
+        rotationRaw = (rot & 0b01000000) == 0 ? rotation : (rot >> 2) & 0b11;
 
         int moduleBits = moduleBitmask();
         boolean legacy = true;
@@ -2012,6 +2017,7 @@ abstract class BuildingComp implements Posc, Teamc, Healthc, Buildingc, Timerc, 
             case timescale -> timeScale;
             case range -> this instanceof Ranged r ? r.range() / tilesize : 0;
             case rotation -> rotation;
+            case rotationRaw -> rotationRaw;
             case totalItems -> items == null ? 0 : items.total();
             //totalLiquids is inherently bad design, but unfortunately it is useful for conduits/tanks
             case totalLiquids -> liquids == null ? 0 : liquids.currentAmount();
